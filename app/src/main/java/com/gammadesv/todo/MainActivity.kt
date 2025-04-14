@@ -1,79 +1,102 @@
 package com.gammadesv.todo
 
-import androidx.appcompat.app.AppCompatActivity  // 👈 Esta línea debe estar al inicio
-
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
+import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
-import java.util.UUID
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gammadesv.todo.databinding.ActivityMainBinding
-
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.gammadesv.todo.ui.theme.TodoTheme
-//import androidx.appcompat.app.AppCompatActivity  // 👈 Esta línea debe estar al inicio
+import com.google.firebase.database.DataSnapshot  // Importación añadida
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.ktx.database
+import com.google.firebase.database.ktx.getValue
+import com.google.firebase.ktx.Firebase
+import java.util.UUID
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityMainBinding  // Declara el binding
-    private lateinit var database: DatabaseReference
-    private val tasks = mutableListOf<Task>()
+
+    private lateinit var binding: ActivityMainBinding
+    private val database by lazy { Firebase.database.reference.child("tasks") }
     private lateinit var adapter: TaskAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)  // Infla el binding
-        setContentView(binding.root)  // Usa la vista raíz del binding
 
-        // Configura Firebase
-        database = FirebaseDatabase.getInstance().reference.child("tasks")
+        // Configuración inicial (typo corregido)
+        setupBinding()
+        setupRecyclerView()
+        setupUiListeners()
+        setupDataListener()
+    }
 
-        // RecyclerView (ahora accedido mediante binding)
-        binding.recyclerViewTasks.layoutManager = LinearLayoutManager(this)
-        adapter = TaskAdapter(tasks) { updatedTask ->
+    private fun setupBinding() {
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+    }
+
+    private fun setupRecyclerView() {
+        adapter = TaskAdapter(emptyList()) { updatedTask: Task ->
             database.child(updatedTask.id).setValue(updatedTask)
-        }
-        binding.recyclerViewTasks.adapter = adapter
-
-        // Botón y EditText (con binding)
-        binding.buttonAdd.setOnClickListener {
-            val taskTitle = binding.editTextTask.text.toString()
-            if (taskTitle.isNotEmpty()) {
-                val newTask = Task(
-                    id = UUID.randomUUID().toString(),
-                    title = taskTitle
-                )
-                database.child(newTask.id).setValue(newTask)
-                binding.editTextTask.text.clear()
-            }
-        }
-
-        // Escucha de Firebase
-        database.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                tasks.clear()
-                snapshot.children.forEach { child ->
-                    val task = child.getValue(Task::class.java)
-                    task?.let { tasks.add(it) }
+                .addOnFailureListener { e ->
+                    showError("Error al actualizar la tarea", e)  // Typos corregidos
                 }
-                adapter.notifyDataSetChanged()
+        }
+
+        with(binding.recyclerViewTasks) {
+            layoutManager = LinearLayoutManager(this@MainActivity)
+            adapter = this@MainActivity.adapter
+            setHasFixedSize(true)
+        }
+    }
+
+    private fun setupUiListeners() {
+        binding.apply {
+            buttonAdd.setOnClickListener { handleAddTask() }
+            // Puedes agregar más listeners aquí si es necesario (typos corregidos)
+        }
+    }
+
+    private fun setupDataListener() {
+        database.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {  // DataSnapshot ahora reconocido
+                val tasks = snapshot.children.mapNotNull {
+                    it.getValue<Task>()  // Usando la extensión KTX
+                }
+                adapter.updateTasks(tasks)
             }
 
             override fun onCancelled(error: DatabaseError) {
-                Toast.makeText(this@MainActivity, "Error: ${error.message}", Toast.LENGTH_SHORT).show()
+                showError("Error loading tasks", error.toException())
             }
         })
+    }
+
+    private fun handleAddTask() {
+        val taskTitle = binding.editTextTask.text.toString().trim()
+
+        if (taskTitle.isEmpty()) {
+            binding.editTextTask.error = "Ingresa una tarea"
+            return
+        }
+
+        val newTask = Task(
+            id = UUID.randomUUID().toString(),
+            title = taskTitle,
+            isCompleted = false
+        )
+
+        database.child(newTask.id).setValue(newTask)
+            .addOnSuccessListener {
+                binding.editTextTask.text?.clear()
+            }
+            .addOnFailureListener { e ->
+                showError("Error al agregar tarea", e)
+            }
+    }
+
+    private fun showError(message: String, exception: Exception? = null) {
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+        Log.e("TodoApp", message, exception)
     }
 }
