@@ -19,11 +19,17 @@ import java.util.UUID
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+
     private val database by lazy {
+        Firebase.database.reference.child("tasks").also {
+            Log.d("FirebaseInit", "Database reference initialized")
+        }
+
+    /*private val database by lazy {
         Firebase.database("https://todo-30caa-default-rtdb.firebaseio.com/")
             .reference.child("tasks").also {
                 Log.d("FirebaseInit", "Database reference initialized")
-            }
+            }*/
     }
     private lateinit var adapter: TaskAdapter
 
