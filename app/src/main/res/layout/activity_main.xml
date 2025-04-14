@@ -12,9 +12,7 @@
         android:layout_marginBottom="16dp"
         android:minHeight="48dp"
         android:hint="@string/task_hint"
-        android:inputType="textCapSentences|textAutoCorrect"
-        android:autofillHints="taskDescription"
-        android:importantForAutofill="yes" />
+        android:inputType="textCapSentences|textAutoCorrect" />
 
     <Button
         android:id="@+id/buttonAdd"
@@ -25,10 +23,24 @@
         android:minHeight="48dp"
         android:text="@string/add_button_text" />
 
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/textError"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/error"
+        android:visibility="gone"
+        android:layout_marginTop="8dp" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewTasks"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="16dp"
-        android:contentDescription="@string/tasks_list_description" />
+        android:layout_marginTop="16dp" />
 </LinearLayout>

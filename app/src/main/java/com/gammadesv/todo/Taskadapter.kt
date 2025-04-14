@@ -8,15 +8,14 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
 class TaskAdapter(
-    private var tasks: List<Task>,  // Cambiado a List inmutable
-    private val onTaskUpdated: (Task) -> Unit  // Nombre más descriptivo
+    private var tasks: List<Task>,
+    private val onTaskUpdated: (Task) -> Unit
 ) : RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
 
     inner class TaskViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val textView: TextView = itemView.findViewById(R.id.textViewTask)
         val checkBox: CheckBox = itemView.findViewById(R.id.checkBoxTask)
 
-        // Limpia listeners para evitar fugas de memoria
         fun clearListeners() {
             checkBox.setOnCheckedChangeListener(null)
         }
@@ -30,15 +29,11 @@ class TaskAdapter(
 
     override fun onBindViewHolder(holder: TaskViewHolder, position: Int) {
         val task = tasks[position]
-
-        // Limpiar listeners anteriores
         holder.clearListeners()
 
-        // Configurar vista
         holder.textView.text = task.title
         holder.checkBox.isChecked = task.isCompleted
 
-        // Configurar listener
         holder.checkBox.setOnCheckedChangeListener { _, isChecked ->
             onTaskUpdated(task.copy(isCompleted = isChecked))
         }
@@ -46,14 +41,8 @@ class TaskAdapter(
 
     override fun getItemCount(): Int = tasks.size
 
-    // Función para actualizar la lista completa
     fun updateTasks(newTasks: List<Task>) {
         tasks = newTasks
         notifyDataSetChanged()
-    }
-
-    // Función para obtener tarea por posición
-    fun getTaskAt(position: Int): Task? {
-        return if (position in 0 until itemCount) tasks[position] else null
     }
 }
