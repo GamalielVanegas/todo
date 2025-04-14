@@ -1,13 +1,22 @@
 package com.gammadesv.todo
 
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.CheckBox
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+
+
+
 class TaskAdapter(
     private val tasks: MutableList<Task>,
     private val onTaskClick: (Task) -> Unit
 ) : RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
 
-    class TaskViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val textViewTask: TextView = view.findViewById(R.id.textViewTask)
-        val checkBoxTask: CheckBox = view.findViewById(R.id.checkBoxTask)
+    class TaskViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val textViewTask: TextView = itemView.findViewById(R.id.textViewTask)
+        val checkBoxTask: CheckBox = itemView.findViewById(R.id.checkBoxTask)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskViewHolder {
@@ -25,5 +34,5 @@ class TaskAdapter(
         }
     }
 
-    override fun getItemCount() = tasks.size
+    override fun getItemCount(): Int = tasks.size
 }

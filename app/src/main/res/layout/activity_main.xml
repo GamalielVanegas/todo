@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -10,17 +9,26 @@
         android:id="@+id/editTextTask"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Nueva tarea" />
+        android:layout_marginBottom="16dp"
+        android:minHeight="48dp"
+        android:hint="@string/task_hint"
+        android:inputType="textCapSentences|textAutoCorrect"
+        android:autofillHints="taskDescription"
+        android:importantForAutofill="yes" />
 
     <Button
         android:id="@+id/buttonAdd"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Agregar" />
+        android:layout_gravity="end"
+        android:minWidth="48dp"
+        android:minHeight="48dp"
+        android:text="@string/add_button_text" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewTasks"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
+        android:layout_height="match_parent"
+        android:layout_marginTop="16dp"
+        android:contentDescription="@string/tasks_list_description" />
 </LinearLayout>
